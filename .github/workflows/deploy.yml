@@ -29,6 +29,9 @@ jobs:
           script: |
             cd /opt/apps/${{ github.event.repository.name }}
             git pull origin main
-            docker compose -f deploy/docker-compose.standalone.yml up -d --build
-            docker compose -f deploy/docker-compose.standalone.yml exec app alembic -c app/alembic.ini upgrade head
+            docker compose -f deploy/docker-compose.yml up -d --build
+            docker compose -f deploy/docker-compose.yml exec -T app alembic -c app/alembic.ini upgrade head
             bash scripts/health-check.sh https://${{ secrets.APP_DOMAIN }}/health
+            # Register app with platform Caddy
+            ln -sf /opt/apps/${{ github.event.repository.name }}/deploy/Caddyfile /opt/platform/caddy-apps/${{ github.event.repository.name }}.caddy
+            docker compose -f /opt/platform/docker-compose.yml exec -T caddy caddy reload --config /etc/caddy/Caddyfile
