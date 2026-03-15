@@ -44,6 +44,25 @@ jobs:
               || docker compose -f /opt/platform/docker-compose.yml exec -T postgres \
               psql -U postgres -c "CREATE DATABASE ${APP_DB}"
 
+            # Source per-app credentials and update deploy/.env if available
+            CREDENTIALS_FILE="/opt/platform/credentials/${APP_NAME}.env"
+            if [ -f "$CREDENTIALS_FILE" ]; then
+              echo "Using per-app credentials from $CREDENTIALS_FILE"
+              source "$CREDENTIALS_FILE"
+              # Update DATABASE_URL with per-app user credentials
+              sed -i "s|^DATABASE_URL=.*|DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${APP_DB}|" deploy/.env
+              # Update S3 credentials with per-app MinIO user
+              sed -i "s|^S3_ACCESS_KEY=.*|S3_ACCESS_KEY=${S3_ACCESS_KEY}|" deploy/.env
+              sed -i "s|^S3_SECRET_KEY=.*|S3_SECRET_KEY=${S3_SECRET_KEY}|" deploy/.env
+              # Update S3 bucket name
+              sed -i "s|^S3_BUCKET=.*|S3_BUCKET=${APP_NAME}-uploads|" deploy/.env
+              echo "deploy/.env updated with per-app credentials"
+            else
+              echo "WARNING: Per-app credentials not found at $CREDENTIALS_FILE"
+              echo "Run create-app-credentials.sh ${APP_NAME} for isolated credentials."
+              echo "Falling back to existing deploy/.env credentials."
+            fi
+
             # Build and start app containers (project name = app name for predictable container names)
             docker compose -p ${APP_NAME} -f deploy/docker-compose.yml up -d --build
 
