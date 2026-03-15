@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd=\"$TOOL_INPUT_command\"; if echo \"$cmd\" | grep -qE '^git commit'; then msg=$(echo \"$cmd\" | sed -n 's/.*-m [\"'\\''\"'\\'']*\\([^\"'\\'']*\\).*/\\1/p'); if [ -n \"$msg\" ]; then if ! echo \"$msg\" | grep -qE '^(feat|fix|docs|chore|refactor|test|ci): .+'; then echo 'BLOCKED: Commit message must follow conventional format: type: description'; echo 'Allowed types: feat, fix, docs, chore, refactor, test, ci'; exit 2; fi; fi; fi; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}
