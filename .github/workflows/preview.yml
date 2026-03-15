@@ -46,9 +46,9 @@ jobs:
             sed "s|^DATABASE_URL=.*|DATABASE_URL=postgresql://postgres:$(grep POSTGRES_PASSWORD /opt/platform/.env | cut -d= -f2)@postgres:5432/${APP_DB}?options=-csearch_path%3D${SCHEMA_NAME}|" \
               deploy/.env > deploy/.env.pr-${PR_NUMBER}
 
-            # Build and start preview containers
+            # Build and start the app container (skip optional services like celery-worker)
             docker compose -p ${APP_NAME}-pr-${PR_NUMBER} -f deploy/docker-compose.yml \
-              --env-file deploy/.env.pr-${PR_NUMBER} up -d --build
+              --env-file deploy/.env.pr-${PR_NUMBER} up -d --build app
 
             # Run database migrations against the preview schema
             docker compose -p ${APP_NAME}-pr-${PR_NUMBER} -f deploy/docker-compose.yml \
