@@ -27,6 +27,9 @@ jobs:
 
             cd /opt/apps/${APP_NAME}
 
+            # Ensure we're on main before fetching (previous run may have left us on a PR branch)
+            git checkout main 2>/dev/null || true
+
             # Fetch and checkout the PR branch
             git fetch origin pull/${PR_NUMBER}/head:pr-${PR_NUMBER} --force
             git checkout pr-${PR_NUMBER}
