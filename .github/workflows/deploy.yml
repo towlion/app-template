@@ -44,11 +44,11 @@ jobs:
               || docker compose -f /opt/platform/docker-compose.yml exec -T postgres \
               psql -U postgres -c "CREATE DATABASE ${APP_DB}"
 
-            # Build and start app containers
-            docker compose -f deploy/docker-compose.yml up -d --build
+            # Build and start app containers (project name = app name for predictable container names)
+            docker compose -p ${APP_NAME} -f deploy/docker-compose.yml up -d --build
 
             # Run database migrations
-            docker compose -f deploy/docker-compose.yml exec -T app alembic -c app/alembic.ini upgrade head
+            docker compose -p ${APP_NAME} -f deploy/docker-compose.yml exec -T app alembic -c app/alembic.ini upgrade head
 
             # Health check
             bash scripts/health-check.sh https://${{ secrets.APP_DOMAIN }}/health
