@@ -14,6 +14,7 @@ Key conventions for Towlion application repositories:
 
 ## Project Layout
 - `app/` — Python backend (FastAPI)
+  - `app/__init__.py` must exist (required for `from app.models import Base` in alembic)
 - `deploy/` — Docker Compose, Caddyfile, env.template
 - `scripts/` — Utility scripts (health-check.sh)
 - `frontend/` — Optional Next.js frontend
@@ -47,3 +48,4 @@ Key conventions for Towlion application repositories:
 - Two compose files: `docker-compose.yml` (multi-app), `docker-compose.standalone.yml` (full stack)
 - App container exposes port 8000
 - Include healthcheck in compose definition
+- Dockerfile installs `curl` (required for healthcheck) and sets `ENV PYTHONPATH=/app` (required for alembic)

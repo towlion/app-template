@@ -29,6 +29,6 @@ jobs:
           script: |
             cd /opt/apps/${{ github.event.repository.name }}
             git pull origin main
-            alembic upgrade head
-            docker compose -f deploy/docker-compose.yml up -d --build
-            bash scripts/health-check.sh http://${{ secrets.APP_DOMAIN }}/health
+            docker compose -f deploy/docker-compose.standalone.yml up -d --build
+            docker compose -f deploy/docker-compose.standalone.yml exec app alembic -c app/alembic.ini upgrade head
+            bash scripts/health-check.sh https://${{ secrets.APP_DOMAIN }}/health
