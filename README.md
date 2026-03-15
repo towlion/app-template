@@ -66,6 +66,27 @@ docker compose -f deploy/docker-compose.standalone.yml up -d
 
 This includes PostgreSQL, Redis, MinIO, and Caddy alongside your app.
 
+## Deployment Secrets
+
+Configure these GitHub Actions secrets on your repository (**Settings > Secrets and variables > Actions**):
+
+| Secret | Required | Description |
+|---|---|---|
+| `SERVER_HOST` | Yes | Server IP address |
+| `SERVER_USER` | Yes | SSH user (typically `deploy`) |
+| `SERVER_SSH_KEY` | Yes | SSH private key for deployment |
+| `APP_DOMAIN` | Yes | Application domain (e.g., `app.example.com`) |
+| `PREVIEW_DOMAIN` | No | Base domain for PR preview environments (e.g., `example.com`) |
+
+Database and storage credentials are auto-generated on the server by the bootstrap script. They are not GitHub secrets.
+
+## Self-Hosting
+
+For full self-hosting instructions, see the platform documentation:
+
+- [Self-Hosting Guide](https://github.com/towlion/platform/blob/main/docs/self-hosting.md) — Fork model, server requirements, bootstrap process
+- [Deployment Tutorial](https://github.com/towlion/platform/blob/main/docs/tutorial.md) — Step-by-step walkthrough from fork to running app
+
 ## License
 
 [MIT](LICENSE)

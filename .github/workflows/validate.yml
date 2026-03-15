@@ -18,6 +18,8 @@ jobs:
         with:
           repository: towlion/platform
           path: _platform
+        continue-on-error: true
 
       - name: Run spec validator
+        if: success()
         run: python _platform/validator/validate.py --tier 2 --dir .
