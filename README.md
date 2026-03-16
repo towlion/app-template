@@ -15,7 +15,6 @@ app/                    # FastAPI backend
   main.py               # Application entry point
   Dockerfile            # Backend container image
   models.py             # SQLAlchemy models
-  tasks.py              # Celery background tasks
   alembic/              # Database migrations
 deploy/
   docker-compose.yml    # App containers (multi-app mode)
@@ -79,6 +78,43 @@ Configure these GitHub Actions secrets on your repository (**Settings > Secrets 
 | `PREVIEW_DOMAIN` | No | Base domain for PR preview environments (e.g., `example.com`) |
 
 Database and storage credentials are auto-generated on the server by the bootstrap script. They are not GitHub secrets.
+
+## Background Tasks (Celery)
+
+The template does not include a celery-worker service by default. If your app needs background tasks:
+
+1. Add `celery` and `redis` to `requirements.txt`
+2. Create `app/tasks.py` with your Celery app and tasks
+3. Add the celery-worker service to `deploy/docker-compose.yml`:
+
+```yaml
+  celery-worker:
+    build:
+      context: ..
+      dockerfile: app/Dockerfile
+    command: celery -A app.tasks worker --loglevel=info
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - towlion
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
+```
+
+## Security
+
+Security hardening is applied automatically by the platform:
+
+- **Security headers** — HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, and Permissions-Policy are set via the Caddy `(security_headers)` snippet, imported by every app route
+- **Trivy scanning** — Every deploy scans the built Docker image for HIGH/CRITICAL vulnerabilities (non-blocking). A weekly cron scan covers all running images.
+- **Credential isolation** — Per-app PostgreSQL users and MinIO buckets are provisioned by `create-app-credentials.sh`
 
 ## Self-Hosting
 

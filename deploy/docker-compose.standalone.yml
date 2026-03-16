@@ -20,18 +20,6 @@ services:
         condition: service_started
     restart: unless-stopped
 
-  celery-worker:
-    build:
-      context: ..
-      dockerfile: app/Dockerfile
-    command: celery -A app.tasks worker --loglevel=info
-    env_file:
-      - .env
-    depends_on:
-      redis:
-        condition: service_started
-    restart: unless-stopped
-
   postgres:
     image: postgres:16
     environment:
