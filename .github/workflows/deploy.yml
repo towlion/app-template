@@ -19,7 +19,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install pytest
-          if python -m pytest --collect-only -q 2>/dev/null | grep -q "test"; then
+          if python -m pytest --collect-only -q >/dev/null 2>&1; then
             pytest --tb=short
           else
             echo "No tests found, skipping"
