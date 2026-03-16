@@ -94,6 +94,13 @@ jobs:
             # Build and start app containers (project name = app name for predictable container names)
             docker compose -p ${APP_NAME} -f deploy/docker-compose.yml up -d --build
 
+            # Scan built image for vulnerabilities (non-blocking)
+            APP_IMAGE=$(docker compose -p ${APP_NAME} -f deploy/docker-compose.yml images app --format "{{.Repository}}:{{.Tag}}" | head -1)
+            if command -v trivy &>/dev/null; then
+              echo "Scanning ${APP_IMAGE} for vulnerabilities..."
+              trivy image --severity HIGH,CRITICAL --exit-code 0 --no-progress "${APP_IMAGE}" || true
+            fi
+
             # Run database migrations
             docker compose -p ${APP_NAME} -f deploy/docker-compose.yml exec -T app alembic -c app/alembic.ini upgrade head
 
@@ -103,6 +110,7 @@ jobs:
             # Generate rendered Caddyfile for platform Caddy
             cat > /opt/platform/caddy-apps/${APP_NAME}.caddy <<CADDYEOF
             ${{ secrets.APP_DOMAIN }} {
+                import security_headers
                 reverse_proxy ${APP_NAME}-app-1:8000
             }
             CADDYEOF

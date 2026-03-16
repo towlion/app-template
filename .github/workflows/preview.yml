@@ -64,6 +64,7 @@ jobs:
             # Generate Caddyfile for preview domain
             cat > /opt/platform/caddy-apps/${APP_NAME}-pr-${PR_NUMBER}.caddy <<CADDYEOF
             ${PREVIEW_DOMAIN} {
+                import security_headers
                 reverse_proxy ${APP_NAME}-pr-${PR_NUMBER}-app-1:8000
             }
             CADDYEOF
