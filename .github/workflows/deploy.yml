@@ -27,6 +27,7 @@ jobs:
 
   deploy:
     needs: test
+    if: github.repository != 'towlion/app-template'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
