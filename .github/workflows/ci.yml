@@ -7,3 +7,6 @@ on:
 jobs:
   test:
     uses: towlion/.github/.github/workflows/test-python.yml@main
+
+  secrets-scan:
+    uses: towlion/.github/.github/workflows/secrets-scan.yml@main
