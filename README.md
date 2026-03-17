@@ -14,7 +14,14 @@ A template repository for bootstrapping new applications on the [Towlion platfor
 app/                    # FastAPI backend
   main.py               # Application entry point
   Dockerfile            # Backend container image
-  models.py             # SQLAlchemy models
+  models.py             # SQLAlchemy models (User)
+  database.py           # DB session management
+  auth.py               # JWT + bcrypt helpers
+  deps.py               # FastAPI dependencies (get_current_user)
+  schemas.py            # Pydantic request/response models
+  storage.py            # S3/MinIO file helpers
+  routers/
+    auth.py             # Register, login, profile endpoints
   alembic/              # Database migrations
 deploy/
   docker-compose.yml    # App containers (multi-app mode)
@@ -38,6 +45,35 @@ uvicorn app.main:app --reload --port 8000
 # Verify it works
 curl http://localhost:8000/health
 ```
+
+## Authentication
+
+The template includes JWT-based authentication out of the box:
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/auth/register` | POST | Create account (email, display_name, password) |
+| `/api/auth/login` | POST | Get token (email, password) |
+| `/api/auth/me` | GET | Current user profile (requires token) |
+
+Use the `Authorization: Bearer <token>` header for authenticated requests.
+
+To protect your own endpoints, add the `get_current_user` dependency:
+
+```python
+from fastapi import Depends
+from app.deps import get_current_user
+from app.models import User
+
+@app.get("/api/my-endpoint")
+def my_endpoint(user: User = Depends(get_current_user)):
+    return {"user_id": user.id}
+```
+
+**Environment variables:**
+- `JWT_SECRET` — Secret key for signing tokens (required in production)
+- `JWT_EXPIRY_HOURS` — Token lifetime, default `72`
+- `CORS_ORIGINS` — Comma-separated allowed origins, default `http://localhost:3000`
 
 ## Environment Variables
 
